@@ -277,11 +277,46 @@ Function RuleThresholdText($triggerOperator, $triggerThreshold) {
     return $returnText
 }
 
+#Estrazione analytics rule create
+Function ActualAnalyticsRule(){
+    $output = Get-AzSentinelAlertRule -ResourceGroupName "sentinel" -workspaceName "pradasentinel"
+    $output | ForEach-Object{
+        $o = [PSCustomObject]@{
+            'AlertDetailOverrideAlertDescriptionFormat' = $_.AlertDetailOverrideAlertDescriptionFormat
+            'AlertDetailOverrideAlertDisplayNameFormat' = $_.AlertDetailOverrideAlertDisplayNameFormat
+            'AlertDetailOverrideAlertSeverityColumnName' = $_.AlertDetailOverrideAlertSeverityColumnName
+            'AlertDetailOverrideAlertTacticsColumnName' = $_.AlertDetailOverrideAlertTacticsColumnName
+            'AlertRuleTemplateName' = $_.AlertRuleTemplateName
+            'DisplayName' = $_.DisplayName
+            'Enabled' = $_.Enabled
+            'GroupingConfigurationEnabled' = $_.GroupingConfigurationEnabled
+            'GroupingConfigurationGroupByAlertDetail' = $_.GroupingConfigurationGroupByAlertDetail
+            'GroupingConfigurationGroupByCustomDetail' = $_.GroupingConfigurationGroupByCustomDetail
+            'GroupingConfigurationGroupByEntity' = $_.GroupingConfigurationGroupByEntity
+            'GroupingConfigurationReopenClosedIncident' = $_.GroupingConfigurationReopenClosedIncident
+            'IncidentConfigurationCreateIncident' = $_.IncidentConfigurationCreateIncident
+            'Kind' = $_.Kind
+            'Name' = $_.Name
+            'Severity' = $_.Severity
+            'SystemDataCreatedBy' = $_.SystemDataCreatedBy
+            'SystemDataLastModifiedAt' = $_.SystemDataLastModifiedAt
+            'SystemDataLastModifiedBy' = $_.SystemDataLastModifiedBy
+            'Tactic' = $_.Tactic
+            'TemplateVersion' = $_.TemplateVersion
+        }
+
+        $o | Export-Csv -Path "./test.csv" -Append
+    }
+}
+
 #Execute the code
 if (! $Filename.EndsWith(".csv")) {
     $FileName += ".csv"
 }
 
+ActualAnalyticsRule
+
+<#
 #New-AzSentinelAnalyticsRulesFromCSV $WorkSpaceName $ResourceGroupName $FileName
 if($Export.IsPresent){
     CreazioneAnalyticsRuleDaCSV $WorkSpaceName $ResourceGroupName $FileName
@@ -289,4 +324,4 @@ if($Export.IsPresent){
 }else{
     EstrazioneAnalyticsRuleTemplate $WorkSpaceName $ResourceGroupName $FileName
 }
-
+#>
