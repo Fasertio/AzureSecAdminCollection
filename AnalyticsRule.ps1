@@ -18,12 +18,9 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $true)]
-    [switch]$Export,   
-    [Parameter(Mandatory = $true)]
     [string]$WorkSpaceName,
     [Parameter(Mandatory = $true)]
     [string]$ResourceGroupName,
-    
     [string]$FileName = "rulestemplate.csv"
 )
 
@@ -278,8 +275,8 @@ Function RuleThresholdText($triggerOperator, $triggerThreshold) {
 }
 
 #Estrazione analytics rule create
-Function ActualAnalyticsRule(){
-    $output = Get-AzSentinelAlertRule -ResourceGroupName "sentinel" -workspaceName "pradasentinel"
+Function ActualAnalyticsRule($WorkSpaceName,$ResourceGroupName){
+    $output = Get-AzSentinelAlertRule -ResourceGroupName $ResourceGroupName -workspaceName $WorkSpaceName
     $output | ForEach-Object{
         $o = [PSCustomObject]@{
             'AlertDetailOverrideAlertDescriptionFormat' = $_.AlertDetailOverrideAlertDescriptionFormat
@@ -314,14 +311,28 @@ if (! $Filename.EndsWith(".csv")) {
     $FileName += ".csv"
 }
 
-ActualAnalyticsRule
 
-<#
-#New-AzSentinelAnalyticsRulesFromCSV $WorkSpaceName $ResourceGroupName $FileName
-if($Export.IsPresent){
-    CreazioneAnalyticsRuleDaCSV $WorkSpaceName $ResourceGroupName $FileName
-
-}else{
-    EstrazioneAnalyticsRuleTemplate $WorkSpaceName $ResourceGroupName $FileName
+Function Menu(){
+    Clear-Host
+    Write-Host "=================== Analytics rule ================="
+    Write-Host "Workspace: $WorkspaceName"
+    Write-Host "Resource Group: $ResourceGroupName"
+    Write-Host "===================================================="
+    Write-Host "1: Estrazione analytics rule attive"
+    Write-Host "2: Estrazione template analytics rule"
+    Write-Host "3: Attivazione Analytics rule tramite il template"
+    Write-Host "q: Esci"
 }
-#>
+
+do{
+    Menu
+    $UserInput = Read-Host "> "
+    switch($UserInput){
+        '1' {ActualAnalyticsRule $WorkSpaceName $ResourceGroupName}
+        '2' {EstrazioneAnalyticsRuleTemplate $WorkSpaceName $ResourceGroupName $FileName}
+        '3' {CreazioneAnalyticsRuleDaCSV $WorkSpaceName $ResourceGroupName $FileName}
+    }
+    pause
+}until($UserInput -eq "q")
+
+
